@@ -17,7 +17,7 @@ const Portfolio = () => {
   const photos: Photo[] = [
     // Featured photos
     { id: 1, src: "/photos/couple.jpg", alt: "Wedding couple", category: "weddings", caption: "Couple", featured: true },
-    { id: 2, src: "/photos/Lucken_Wedding_Highlights-9.JPEG", alt: "Wedding highlights", category: "weddings", caption: "Wedding", featured: true },
+    { id: 2, src: "/photos/Lucken_Wedding.JPEG", alt: "Wedding highlights", category: "weddings", caption: "Wedding", featured: true },
     { id: 3, src: "/photos/marriage2.jpg", alt: "Wedding moments", category: "weddings", caption: "Wedding", featured: true },
     { id: 4, src: "/photos/girl.jpg", alt: "Portrait session", category: "portrait", caption: "Portrait", featured: true },
     { id: 5, src: "/photos/siblings.JPEG", alt: "Family portrait", category: "events", caption: "Family", featured: true },
