@@ -2,7 +2,7 @@
 
 A photography studio website built with modern web technologies.
 
-```
+
 
 
 ## Technologies :
@@ -14,4 +14,4 @@ A photography studio website built with modern web technologies.
 - Tailwind CSS
 
 https://silwal-photography.vercel.app/
-```
+

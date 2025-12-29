@@ -3,7 +3,7 @@ const Hero = () => {
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Video */}
       <video
-        src="/photos/hero.MOV"
+        src="/photos/hero.mp4"
         autoPlay
         loop
         muted
