@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { z } from "zod";
+import { BookingRequest, BookingApiResponse } from "@/types/api";
 
 const bookingSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100),
@@ -13,7 +15,44 @@ const bookingSchema = z.object({
 type BookingData = z.infer<typeof bookingSchema>;
 type FormErrors = Partial<Record<keyof BookingData, string>>;
 
+// Helper function to get CSRF token from cookies
+const getCsrfToken = (): string | null => {
+  const name = "csrftoken";
+  const cookies = document.cookie.split(";");
+  for (let cookie of cookies) {
+    const [key, value] = cookie.trim().split("=");
+    if (key === name) {
+      return decodeURIComponent(value);
+    }
+  }
+  return null;
+};
+
+// Helper function to fetch CSRF token from backend if not in cookies
+const fetchCsrfToken = async (): Promise<string | null> => {
+  try {
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
+    const isDevelopment = import.meta.env.DEV;
+    const apiUrl = isDevelopment
+      ? "/api/home/"
+      : `${baseUrl}/api/home/`;
+
+    // Make a GET request to get CSRF token cookie
+    await fetch(apiUrl, {
+      method: "GET",
+      credentials: "include",
+    });
+
+    // Try to get token from cookies again
+    return getCsrfToken();
+  } catch (error) {
+    console.error("Error fetching CSRF token:", error);
+    return null;
+  }
+};
+
 const BookingForm = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<BookingData>({
     name: "",
     email: "",
@@ -23,7 +62,8 @@ const BookingForm = () => {
     message: "",
   });
   const [errors, setErrors] = useState<FormErrors>({});
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -35,11 +75,12 @@ const BookingForm = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    setSubmitError(null);
+
     const result = bookingSchema.safeParse(formData);
-    
+
     if (!result.success) {
       const fieldErrors: FormErrors = {};
       result.error.errors.forEach((error) => {
@@ -49,9 +90,79 @@ const BookingForm = () => {
       setErrors(fieldErrors);
       return;
     }
-    
-    setIsSubmitted(true);
+
+    setIsSubmitting(true);
     setErrors({});
+
+    try {
+      // Prepare API request data
+      const bookingData: BookingRequest = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        session_type: formData.sessionType,
+        event_date: formData.preferredDate,
+        event_details: formData.message,
+      };
+
+      // Determine API URL (use proxy in development)
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
+      const isDevelopment = import.meta.env.DEV;
+      const apiUrl = isDevelopment
+        ? "/api/bookings/create/"
+        : `${baseUrl}/api/bookings/create/`;
+
+      // Get CSRF token from cookies, or fetch it if not available
+      let csrfToken = getCsrfToken();
+      if (!csrfToken) {
+        csrfToken = await fetchCsrfToken();
+      }
+
+      // Prepare headers
+      const headers: HeadersInit = {
+        accept: "application/json",
+        "Content-Type": "application/json",
+      };
+
+      // Add CSRF token if available
+      if (csrfToken) {
+        headers["X-CSRFToken"] = csrfToken;
+      }
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers,
+        credentials: "include", // Include cookies for CSRF
+        body: JSON.stringify(bookingData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: "Unknown error" }));
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      }
+
+      const result: BookingApiResponse = await response.json();
+
+      if (result.success) {
+        // Redirect to success page
+        navigate("/success");
+      } else {
+        throw new Error(result.message || "Failed to create booking");
+      }
+    } catch (err) {
+      let errorMessage = "Failed to submit booking request. Please try again.";
+
+      if (err instanceof TypeError && err.message.includes("fetch")) {
+        errorMessage = "Network error: Unable to connect to the server. Please check your connection.";
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+
+      setSubmitError(errorMessage);
+      console.error("Error submitting booking:", err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const sessionTypes = [
@@ -164,16 +275,18 @@ const BookingForm = () => {
 
           <button
             type="submit"
-            className="w-full bg-yellow-600 text-white py-3 text-sm font-medium hover:bg-yellow-700 transition-all"
+            disabled={isSubmitting}
+            className={`w-full bg-yellow-600 text-white py-3 text-sm font-medium hover:bg-yellow-700 transition-all ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+              }`}
           >
-            Send Booking Request
+            {isSubmitting ? "Submitting..." : "Send Booking Request"}
           </button>
         </form>
 
-        {isSubmitted && (
-          <div className="mt-6 p-4 bg-secondary text-center">
-            <p className="font-body text-sm text-secondary-foreground">
-              Thank you! Your request has been received. I'll get back to you soon.
+        {submitError && (
+          <div className="mt-6 p-4 bg-destructive/10 border border-destructive/20 text-center">
+            <p className="font-body text-sm text-destructive">
+              {submitError}
             </p>
           </div>
         )}

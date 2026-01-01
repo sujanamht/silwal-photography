@@ -1,6 +1,11 @@
 import { useEffect } from "react";
+import { CompanyDetails } from "@/types/api";
 
-const Footer = () => {
+interface FooterProps {
+  companyDetails: CompanyDetails;
+}
+
+const Footer = ({ companyDetails }: FooterProps) => {
   useEffect(() => {
     // Load Instagram embed script
     const instaScript = document.createElement("script");
@@ -35,7 +40,7 @@ const Footer = () => {
 
   // Common card styles for all three columns
   const cardStyles =
-  "bg-background rounded-3xl shadow-sm p-4 md:p-6 \
+    "bg-background rounded-3xl shadow-sm p-4 md:p-6 \
    flex flex-col items-center justify-between \
    h-full min-h-[420px] \
    text-center";
@@ -60,7 +65,7 @@ const Footer = () => {
           <div className={cardStyles}>
             <blockquote
               className="instagram-media"
-              data-instgrm-permalink="https://www.instagram.com/silwal_photography/?utm_source=ig_embed&utm_campaign=loading"
+              data-instgrm-permalink={companyDetails.insta_link || "https://www.instagram.com/silwal_photography/?utm_source=ig_embed&utm_campaign=loading"}
               data-instgrm-version="14"
               style={{
                 background: "#FFF",
@@ -76,7 +81,7 @@ const Footer = () => {
             >
               <div style={{ padding: "16px" }}>
                 <a
-                  href="https://www.instagram.com/silwal_photography/?utm_source=ig_embed&utm_campaign=loading"
+                  href={companyDetails.insta_link || "https://www.instagram.com/silwal_photography/?utm_source=ig_embed&utm_campaign=loading"}
                   style={{
                     background: "#FFFFFF",
                     lineHeight: 0,
@@ -165,7 +170,7 @@ const Footer = () => {
                   }}
                 >
                   <a
-                    href="https://www.instagram.com/silwal_photography/"
+                    href={companyDetails.insta_link || "https://www.instagram.com/silwal_photography/"}
                     style={{
                       color: "#c9c8cd",
                       fontFamily: "Arial,sans-serif",
@@ -186,15 +191,15 @@ const Footer = () => {
 
           {/* Center Contact Card */}
           <div className={cardStyles}>
-          
+
             <h2 className="font-display text-2xl md:text-3xl font-medium text-foreground text-center">
               Let's <span className="text-yellow-600">Connect!</span>
             </h2>
             <img
-            src="/assests/logo-noBG.png"
-            alt="Silwal Photography"
-            className="h-18 w-auto"
-          />
+              src={companyDetails.logo}
+              alt={companyDetails.logo_name}
+              className="h-18 w-auto"
+            />
             {/* <p className="font-body text-sm text-muted-foreground text-center mb-4">
               I'd love to hear about your wedding, graduation, or special event.
             </p> */}
@@ -202,17 +207,17 @@ const Footer = () => {
             <div className="space-y-2 text-center mb-4">
               <p className="font-body text-sm text-muted-foreground">
                 <a
-                  href="mailto:hello@silwalphotography.com"
+                  href={`mailto:${companyDetails.email}`}
                   className="hover:text-yellow-600 transition-colors font-medium"
                 >
-                  hello@silwalphotography.com
+                  {companyDetails.email}
                 </a>
               </p>
               <p className="font-body text-sm text-muted-foreground">
-                (512) 555-0192
+                {companyDetails.phone_number}
               </p>
               <p className="font-body text-sm text-muted-foreground">
-                Cincinnati, Ohio
+                {companyDetails.location}
               </p>
             </div>
 
@@ -225,13 +230,13 @@ const Footer = () => {
           <div className={cardStyles}>
             <blockquote
               className="tiktok-embed"
-              cite="https://www.tiktok.com/@silwal_photography"
+              cite={companyDetails.tiktok_link || "https://www.tiktok.com/@silwal_photography"}
               data-unique-id="silwal_photography"
               data-embed-type="creator"
               style={{
                 background: "#FFF",
-                
-             
+
+
                 margin: 0,
                 maxWidth: "100%",
                 minWidth: "280px",
@@ -241,7 +246,7 @@ const Footer = () => {
             >
               <div style={{ padding: "16px" }}>
                 <a
-                  href="https://www.tiktok.com/@silwal_photography?refer=creator_embed"
+                  href={companyDetails.tiktok_link || "https://www.tiktok.com/@silwal_photography?refer=creator_embed"}
                   style={{
                     background: "#FFFFFF",
                     lineHeight: 0,
@@ -258,7 +263,7 @@ const Footer = () => {
                     <div
                       style={{
                         backgroundColor: "#F4F4F4",
-                        
+
                         flexGrow: 0,
                         height: "40px",
                         marginRight: "14px",
@@ -269,7 +274,7 @@ const Footer = () => {
                       <div
                         style={{
                           backgroundColor: "#F4F4F4",
-                      
+
                           flexGrow: 0,
                           height: "14px",
                           marginBottom: "6px",
@@ -279,7 +284,7 @@ const Footer = () => {
                       <div
                         style={{
                           backgroundColor: "#F4F4F4",
-                         
+
                           flexGrow: 0,
                           height: "14px",
                           width: "60px",
@@ -328,7 +333,7 @@ const Footer = () => {
                   }}
                 >
                   <a
-                    href="https://www.tiktok.com/@silwal_photography"
+                    href={companyDetails.tiktok_link || "https://www.tiktok.com/@silwal_photography"}
                     style={{
                       color: "#c9c8cd",
                       fontFamily: "Arial,sans-serif",
@@ -351,7 +356,7 @@ const Footer = () => {
 
         {/* Footer bottom */}
         <div className="border-t border-border pt-8 flex flex-col items-center gap-4">
-          
+
           <p className="font-body text-xs text-muted-foreground text-center">
             © {new Date().getFullYear()} Silwal Photography. All rights reserved.
           </p>

@@ -1,9 +1,15 @@
-const Hero = () => {
+import { CompanyDetails } from "@/types/api";
+
+interface HeroProps {
+  companyDetails: CompanyDetails;
+}
+
+const Hero = ({ companyDetails }: HeroProps) => {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Video */}
       <video
-        src="/photos/hero.mp4"
+        src={companyDetails.background}
         autoPlay
         loop
         muted
@@ -17,19 +23,19 @@ const Hero = () => {
       {/* Content */}
       <div className="relative z-10 max-w-3xl mx-auto px-4 text-center pt-16">
         <p className="text-sm uppercase tracking-[0.2em] text-yellow-500 mb-4 animate-fade-in">
-          Photography & Videography
+          {companyDetails.top_header}
         </p>
         <h1
           className="font-display text-5xl md:text-7xl font-medium text-white mb-6 animate-fade-in"
           style={{ animationDelay: "0.1s" }}
         >
-          Silwal Photography
+          {companyDetails.header}
         </h1>
         <p
           className="font-body text-lg md:text-xl text-white/80 max-w-xl mx-auto mb-10 animate-fade-in"
           style={{ animationDelay: "0.2s" }}
         >
-          Capturing weddings, graduations & life's real moments in Cincinnati, Ohio.
+          {companyDetails.sub_header}
         </p>
         <a
           href="#booking"
